@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('cpf',11)->unique();
             $table->enum('type', ['Cliente', 'Administrador'])->default('Cliente');
             $table->foreignId('address_id')->constrained('addresses');
+            $table->string('email')->unique();
+            $table->string('password');
             $table->rememberToken();
             $table->timestamps();
         });
