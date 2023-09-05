@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('name', 255);
             $table->string('cpf',11)->unique();
             $table->enum('type', ['Cliente', 'Administrador'])->default('Cliente');
-            $table->foreignId('address_id')->constrained('addresses');
             $table->string('email')->unique();
             $table->string('password');
+            $table->foreignId('address_id')->references('id')->on('addresses')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });

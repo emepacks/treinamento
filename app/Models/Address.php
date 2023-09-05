@@ -17,4 +17,12 @@ class Address extends Model
         'city',
         'state'
     ];
+
+    public  function users(){
+        return $this->hasOne(User::class);
+    }
+
+    public function companies (){
+        return $this->hasOne(Company::class);
+    }
 }

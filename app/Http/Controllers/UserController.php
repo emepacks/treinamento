@@ -9,7 +9,7 @@ class User extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function login()
     {
         //
     }
@@ -17,15 +17,20 @@ class User extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function signup(Request $request)
     {
-        //
+        $credentials = $request->only([
+            'email',
+            'password',
+            'cpf'
+        ]);
+        $user =
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function showCompanies(string $id)
     {
         //
     }

@@ -13,11 +13,13 @@ class Company extends Model
     protected $fillable = [
         'name',
         'cnpj',
+        'address_id',
+        'user_id'
     ];
 
     public function address ()
     {
-        return $this->hasOne(Address::class, 'address_id');
+        return $this->belongsTo(Address::class, 'address_id');
     }
 
     public function user (){

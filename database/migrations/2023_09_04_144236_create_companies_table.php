@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255);
             $table->string('cnpj',14 )->unique();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('address_id')->constrained('addresses');
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('address_id')->references('id')->on('addresses')->onDelete('cascade');
             $table->timestamps();
         });
     }
