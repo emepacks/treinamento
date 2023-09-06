@@ -7,12 +7,20 @@ use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
+    public function __construct(
+        private Company $companies,
+        private AddressController $address_controller
+    )
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $companies = $this->companies->all();
+        return response()->json($companies);
     }
 
     /**
@@ -20,30 +28,35 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Company $company)
+    public function show(int $id)
     {
-        //
+        $company = $this->companies->newQuery()->findOrFail($id);
+        return response()->json($company);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Company $company)
+    public function update(Request $request, int $id)
     {
-        //
+
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Company $company)
+    public function destroy(int $id)
     {
-        //
+        $company = $this->companies->newQuery()->findOrFail($id);
+        $this->address_controller->destroy($company['address_id']);
+        return $company->delete();
+
     }
 }
