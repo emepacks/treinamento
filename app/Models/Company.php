@@ -14,15 +14,13 @@ class Company extends Model
         'name',
         'cnpj',
         'address_id',
-        'user_id'
     ];
 
-    public function address ()
-    {
-        return $this->belongsTo(Address::class, 'address_id');
+    public function user(){
+        return $this->belongsToMany(User::class)->using(UserCompanies::class);
     }
 
-    public function user (){
-        return $this->hasMany(User::class, 'user_id');
+    public function address(){
+        return $this->hasOne(Address::class, 'address_id', 'id');
     }
 }
