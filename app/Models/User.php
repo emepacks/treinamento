@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
-    public $table = 'users';
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
     /**
      * The attributes that are mass assignable.
      *
@@ -35,13 +36,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function address ()
-    {
-        return $this->belongsTo(Address::class, 'address_id');
+    public function companies(){
+        return $this->belongsToMany(Company::class)->using(UserCompanies::class);
     }
 
-    public function companies (){
-        return $this->belongsToMany(Company::class);
-    }
 
 }
