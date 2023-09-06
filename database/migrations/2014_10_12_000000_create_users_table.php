@@ -18,7 +18,9 @@ return new class extends Migration
             $table->enum('type', ['Cliente', 'Administrador'])->default('Cliente');
             $table->string('email')->unique();
             $table->string('password');
-            $table->foreignId('address_id')->references('id')->on('addresses')->onDelete('cascade');
+            $table->integer('address_id');
+            $table->foreign('address_id')->references('id')->on('addresses')->onDelete('cascade');
+            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });
