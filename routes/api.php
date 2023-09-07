@@ -15,13 +15,20 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::post('/login',[UserController::class, 'login']);
-Route::post('/signup',[UserController::class, 'signup']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/signup', [UserController::class, 'signup']);
 
-Route::middleware(['auth:sanctum'])->group(function(){
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/client/companies/{id}', [UserController::class, 'showCompanies']);
     Route::put('/client/{id}', [UserController::class, 'update']);
     Route::delete('/client/{id}', [UserController::class, 'destroy']);
+
+    Route::middleware(['admin.access'])->group(
+        function () {
+            Route::get('/admin/companies', function () {
+                return response()->json(['message' => auth()->user()->type]);
+            });
+        }
+
+    );
 });
-
-
