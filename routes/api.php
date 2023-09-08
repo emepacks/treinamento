@@ -35,13 +35,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // Listar todas as empresas
             Route::get('/companies', [CompanyController::class, 'index']);
             // Listar uma empresa
-            Route::get('/companies/{id}', [CompanyController::class, 'show']);
+            Route::get('/company/{id}', [CompanyController::class, 'show']);
             // Cadastrar empresa
             Route::post('/companies', [CompanyController::class, 'store']);
             // Atualizar empresa
-            Route::put('/companies/{id}', [CompanyController::class, 'update']);
+            Route::match(['put', 'patch'],'/companies/{id}', [CompanyController::class, 'update']);
             // Deletar empresa
-            Route::delete('/companies/{id}', [CompanyController::class, 'destroy']);
+            Route::delete('/company/{id}', [CompanyController::class, 'destroy']);
             // Listar todos os clientes
             Route::get('/company/clients/{id}', [UserController::class, 'showClients']);
             // Adicionar cliente a empresa
