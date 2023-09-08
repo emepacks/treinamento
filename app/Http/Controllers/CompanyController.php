@@ -66,6 +66,7 @@ class CompanyController extends Controller
     public function show(int $id)
     {
         $company = $this->companies->newQuery()->find($id);
+        $company['address'] = $company->address()->get();
         if (!$company) {
             return response()->json(['message' => 'Company not found'], 404);
         }
@@ -114,10 +115,10 @@ class CompanyController extends Controller
             ['company' => ['Company not found'],]
         );
 
-        $this->address_controller->update($address,$company['address_id']);
+        $company->address()->update($address);
         $company->update($credentials);
 
-        $company['address'] = $address;
+        $company['address'] = $company->address()->get();
         $company['users'] = $this->companies->user()->get();
 
         return response()->json([
@@ -134,7 +135,7 @@ class CompanyController extends Controller
         if (!$company) {
             return response()->json(['message' => 'Company not found'], 404);
         }
-        $this->address_controller->destroy($company['address_id']);
+        $company->address()->delete();
         $company->delete();
         return response()->json(['message' => 'Company deleted successfully']);
 

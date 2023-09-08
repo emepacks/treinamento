@@ -87,12 +87,12 @@ class UserController extends Controller
 
     public function getUser(int $id){
         $user = $this->user->newQuery()->find($id);
+
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
-        $address = $this->addresses->newQuery()->where('id', $user['address_id'])->first();
         $companies = $this->user->companies()->get();
-        $user['address'] = $address;
+        $user['address'] = $user->address()->get();
         $user['companies'] = $companies;
         return response()->json(['user'=>$user]);
     }
@@ -107,7 +107,8 @@ class UserController extends Controller
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
-        $companies = $this->user->companies()->get();
+        dd($this->user->companies());
+        $companies = $this->user->companies->get();
         $data['user'] = $user['name'];
         $data['companies'] = $companies;
         return response()->json(['data'=>$data]);
@@ -138,10 +139,11 @@ class UserController extends Controller
             ['user' => ['User not found'],]
         );
 
-        $this->address_controller->update($address,$user['address_id']);
+        $user->address()->update($address);
+        // $this->address_controller->update($address,$user['address_id']);
         $user->update($credentials);
 
-        $user['address'] = $address;
+        $user['address'] = $user->address()->get();
         $user['companies'] = $this->user->companies()->get();
 
         return response()->json([
@@ -159,7 +161,9 @@ class UserController extends Controller
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
-        $address = $this->address_controller->destroy($user['id']);
+        
+        $user->address()->delete();
+        // $address = $this->address_controller->destroy($user['id']);
         $user->delete();
 
         return response()->json([
