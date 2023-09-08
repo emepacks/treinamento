@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -13,7 +14,8 @@ class CompanyController extends Controller
 {
     public function __construct(
         private Company $companies,
-        private AddressController $address_controller
+        private AddressController $address_controller,
+        private User $users
     )
     {
     }
@@ -71,6 +73,22 @@ class CompanyController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+
+     //TODO: Não esta funcionando - Revisar depois
+    public function showClients(int $id)
+    {
+        $company = $this->companies->newQuery()->find($id);
+        if (!$company) {
+            return response()->json(['message' => 'Company not found'], 404);
+        }
+        $users =$this->companies->user()->get();
+        $company['users'] = $users;
+        return response()->json($company);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
 
@@ -105,7 +123,6 @@ class CompanyController extends Controller
         return response()->json([
             'company' => $company
         ]);
-
     }
 
     /**
@@ -121,5 +138,20 @@ class CompanyController extends Controller
         $company->delete();
         return response()->json(['message' => 'Company deleted successfully']);
 
+    }
+    public function addClient (Request $request, int $id){
+        $data = $request->validate([
+            'cpf' => 'required|string|size:11',
+        ]);
+        $company = $this->companies->newQuery()->find($id);
+        if (!$company) {
+            return response()->json(['message' => 'Company not found'], 404);
+        }
+        $user = $this->users->newQuery()->where('cpf', $data['cpf'])->first();
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+        $company->user()->attach($user);
+        return response()->json(['message' => 'User added successfully']);
     }
 }
