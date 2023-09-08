@@ -57,24 +57,24 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    // TODO: Adicionar validação de dados
+    // TODO: Ideia: implementar uma função para formatar os dados para serem entregues ao cliente.
     public function signup(StoreClientRequest $request)
     {
-        $credentials = $request->only([
-            'cpf',
-            'email',
-            'password',
-            'name'
-        ]);
+        $data = $request->validated();
+        $credentials = [
+            'cpf' => $data['cpf'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'name' => $data['name']
+        ];
+        $address = [
+            'cep' => $data['cep'],
+            'street' => $data['street'],
+            'neighborhood' => $data['neighborhood'],
+            'city' => $data['city'],
+            'state' => $data['state']
+        ];
         $credentials['password'] = Hash::make($credentials['password']);
-        $address = $request->only([
-            'cep',
-            'street',
-            'neighborhood',
-            'city',
-            'state'
-        ]);
-
         $addressStored = $this->address_controller->store($address);
         $credentials['address_id'] = $addressStored['id'];
         $user = $this->user->newQuery()->create($credentials);
