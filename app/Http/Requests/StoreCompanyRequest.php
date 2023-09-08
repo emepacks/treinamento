@@ -13,7 +13,6 @@ class StoreCompanyRequest extends FormRequest
     {
         return true;
     }
-    // TODO: Remover a parte da validação de endereço e colocar em um arquivo separado.
     /**
      * Get the validation rules that apply to the request.
      *
