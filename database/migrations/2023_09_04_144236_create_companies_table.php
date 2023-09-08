@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255);
+            $table->string('email',255)->unique();
+            $table->string('password',255);
             $table->string('cnpj',14 )->unique();
             $table->integer('address_id');
             $table->foreign('address_id')->references('id')->on('addresses')->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
