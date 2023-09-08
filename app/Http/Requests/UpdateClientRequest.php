@@ -23,8 +23,6 @@ class UpdateClientRequest extends FormRequest
     {
         return [
             'name' => 'string|max:255|min:3',
-            'cpf' => 'string|size:11|unique:users',  // TODO: Como validar um cpf que já existe?
-            'email' => 'email|max:255',
             'password' => 'string|max:255|min:6',
             'cep'=>'string|size:8',
             'street'=>'string|max:255',
