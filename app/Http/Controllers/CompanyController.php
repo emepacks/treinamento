@@ -23,7 +23,6 @@ class CompanyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    // TODO: Editar para trazer os enderecos das empresas
     public function index()
     {
         $companies = $this->companies->all();
