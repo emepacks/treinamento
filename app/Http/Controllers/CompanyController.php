@@ -27,6 +27,10 @@ class CompanyController extends Controller
     public function index()
     {
         $companies = $this->companies->all();
+        $companies->map(function ($company) {
+            $company['address'] = $company->address()->get();
+            $company['users'] = $company->user()->get();
+        });
         return response()->json($companies);
     }
 
@@ -76,16 +80,14 @@ class CompanyController extends Controller
     /**
      * Display the specified resource.
      */
-
-     //TODO: Não esta funcionando - Revisar depois
     public function showClients(int $id)
     {
         $company = $this->companies->newQuery()->find($id);
         if (!$company) {
             return response()->json(['message' => 'Company not found'], 404);
         }
-        $users =$this->companies->user()->get();
-        $company['users'] = $users;
+        $company['users'] = $company->user()->get();
+        $company['address'] = $company->address()->get();
         return response()->json($company);
     }
 
