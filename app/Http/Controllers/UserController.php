@@ -146,7 +146,7 @@ class UserController extends Controller
         $user->refresh();
 
         $user['address'] = $user->address()->get();
-        $user['companies'] = $this->user->companies()->get();
+        $user['companies'] = $user->companies()->get();
 
         return response()->json([
             'user' => $user
