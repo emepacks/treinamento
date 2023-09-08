@@ -19,8 +19,9 @@ class CompanyFactory extends Factory
         return [
             'name' => fake()->company(),
             'cnpj' => fake()->numerify('##########0001'),
-            'address_id' => 1,
-            'user_id' => 1
+            'email' => fake()->unique()->safeEmail(),
+            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'address_id' => fake()->numberBetween(1, 10),
         ];
     }
 }
