@@ -88,6 +88,9 @@ class UserController extends Controller
 
     public function getUser(int $id){
         $user = $this->user->newQuery()->find($id);
+        if(!$user) throw ValidationException::withMessages(
+            ['user' => ['User not found'],]
+        );
         $address = $this->addresses->newQuery()->where('id', $user['address_id'])->first();
         $companies = $this->user->companies()->get();
         $user['address'] = $address;
@@ -112,28 +115,33 @@ class UserController extends Controller
       // TODO: Adicionar validação de dados
      public function update(UpdateClientRequest $request, int $id)
     {
-        $credentials = $request->only([
-            'cpf',
-            'email',
-            'password',
-            'name'
-        ]);
+        $data = $request->validated();
+        $credentials = [
+            'password' => $data['password'],
+            'name' => $data['name']
+        ];
+        $address = [
+            'cep' => $data['cep'],
+            'street' => $data['street'],
+            'neighborhood' => $data['neighborhood'],
+            'city' => $data['city'],
+            'state' => $data['state']
+        ];
         isset($credentials['password']) ? $credentials['password'] = Hash::make($credentials['password']) : null;
+        $user = $this->user->newQuery()->find($id);
 
-        $address_data = $request->only([
-            'cep',
-            'street',
-            'neighborhood',
-            'city',
-            'state'
-        ]);
+        if(!$user) throw ValidationException::withMessages(
+            ['user' => ['User not found'],]
+        );
 
-        $user = $this->user->newQuery()->findOrFail($id);
+        $this->address_controller->update($address,$user['address_id']);
         $user->update($credentials);
-        $this->address_controller->update($address_data,$user['address_id'] );
+
+        $user['address'] = $address;
+        $user['companies'] = $this->user->companies()->get();
 
         return response()->json([
-            'Client updated success'
+            'user' => $user
         ]);
 
     }
@@ -143,11 +151,15 @@ class UserController extends Controller
      */
     public function destroy(int $id)
     {
-        $user = $this->user->newQuery()->findOrFail($id);
-        $this->address_controller->destroy($user['id']);
+        $user = $this->user->newQuery()->find($id);
+        if(!$user) throw ValidationException::withMessages(
+            ['user' => ['User not found'],]
+        );
+        $address = $this->address_controller->destroy($user['id']);
         $user->delete();
+
         return response()->json([
-            'Client is removed'
+            'message' => 'User deleted successfully',
         ]);
     }
 }
