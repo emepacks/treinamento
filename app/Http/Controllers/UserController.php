@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 use App\Models\Address;
 use App\Models\Company;
 use Illuminate\Http\Request;
@@ -24,23 +27,22 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->only([
-            'email',
-            'password',
-        ]);
+        $credentials = $request->validated();
 
-        $user = $this->user->newQuery()->where('email', $credentials['email'])->firstOrFail();
+        $user = $this->user->newQuery()->where('email', $credentials['email'])->first();
         if(!$user) throw ValidationException::withMessages(
             ['email' => ['Email is incorrect.'],]
         );
-
         $password = Hash::check($credentials['password'], $user->password);
         if(!$password) throw ValidationException::withMessages(
             ['password' => ['Password is incorrect'],]
         );
-
+        $address = $this->addresses->newQuery()->where('id', $user['address_id'])->first();
+        $companies = $this->user->companies()->get();
+        $user['address'] = $address;
+        $user['companies'] = $companies;
         //Gerar o token de acesso
         $user->tokens()->delete();
         $token = $user->createToken('token')->plainTextToken;
@@ -55,7 +57,8 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function signup(Request $request)
+    // TODO: Adicionar validação de dados
+    public function signup(StoreClientRequest $request)
     {
         $credentials = $request->only([
             'cpf',
@@ -86,17 +89,19 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
+    // TODO: Terminar de implementar
     public function showCompanies(int $id)
     {
         $user = $this->user->newQuery()->findOrFail($id);
-        dd($user->companies());
-        return response()->json($user);
+        dd($this->user->companies());
+        return response()->json(compact('user', 'companies'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, int $id)
+      // TODO: Adicionar validação de dados
+     public function update(UpdateClientRequest $request, int $id)
     {
         $credentials = $request->only([
             'cpf',
@@ -127,13 +132,13 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
         $user = $this->user->newQuery()->findOrFail($id);
         $this->address_controller->destroy($user['id']);
+        $user->delete();
         return response()->json([
             'Client is removed'
         ]);
-
     }
 }
