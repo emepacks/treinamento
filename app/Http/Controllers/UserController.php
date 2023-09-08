@@ -86,6 +86,15 @@ class UserController extends Controller
         ]);
     }
 
+    public function getUser(int $id){
+        $user = $this->user->newQuery()->find($id);
+        $address = $this->addresses->newQuery()->where('id', $user['address_id'])->first();
+        $companies = $this->user->companies()->get();
+        $user['address'] = $address;
+        $user['companies'] = $companies;
+        return response()->json(['user'=>$user]);
+    }
+
     /**
      * Display the specified resource.
      */
