@@ -20,9 +20,9 @@ Route::post('/login', [UserController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     // Dados do cliente
-    Route::get('/client', [UserController::class, 'index']);
+    Route::get('/client/{id}', [UserController::class, 'getUser']);
     // Atualizar dados do cliente
-    Route::put('/client/{id}', [UserController::class, 'update']);
+    Route::match(['put', 'patch'],'/client/{id}', [UserController::class, 'update']);
     // Deletar cliente
     Route::delete('/client/{id}', [UserController::class, 'destroy']);
     // Listar empresas que o cliente faz parte
