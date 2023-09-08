@@ -97,7 +97,6 @@ class CompanyController extends Controller
      * Update the specified resource in storage.
      */
 
-     // TODO: descobrir pq a senha esta sendo enviada junto com os dados
     public function update(UpdateCompanyRequest $request, int $id)
     {
         $data = $request->validated();
