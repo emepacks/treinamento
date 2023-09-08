@@ -79,9 +79,8 @@ class UserController extends Controller
         $credentials['address_id'] = $addressStored['id'];
         $user = $this->user->newQuery()->create($credentials);
         $token = $user->createToken('token')->plainTextToken;
-
         return response()->json([
-            'user'=>$user,
+            'message'=>'User created successfully',
             'token'=>$token
         ]);
     }
