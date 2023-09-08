@@ -20,13 +20,13 @@ Route::post('/login', [UserController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     // Dados do cliente
-    Route::get('/client/{id}', [UserController::class, 'getUser']);
+    Route::get('/client', [UserController::class, 'getUser']);
     // Atualizar dados do cliente
-    Route::match(['put', 'patch'],'/client/{id}', [UserController::class, 'update']);
+    Route::match(['put', 'patch'],'/client', [UserController::class, 'update']);
     // Deletar cliente
-    Route::delete('/client/{id}', [UserController::class, 'destroy']);
+    Route::delete('/client', [UserController::class, 'destroy']);
     // Listar empresas que o cliente faz parte
-    Route::get('/client/companies/{id}', [UserController::class, 'showCompanies']);
+    Route::get('/client/companies', [UserController::class, 'showCompanies']);
 
     Route::middleware(['admin.access'])->group(
         function () {
@@ -35,7 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // Listar todas as empresas
             Route::get('/companies', [CompanyController::class, 'index']);
             // Listar uma empresa
-            Route::get('/company/{id}', [CompanyController::class, 'show']);
+            Route::get('/company', [CompanyController::class, 'show']);
             // Cadastrar empresa
             Route::post('/companies', [CompanyController::class, 'store']);
             // Atualizar empresa

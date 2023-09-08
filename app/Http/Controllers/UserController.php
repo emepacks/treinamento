@@ -9,6 +9,7 @@ use App\Models\Address;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -41,7 +42,10 @@ class UserController extends Controller
         );
 
         $user['address'] = $user->address()->first();
-        $user['companies'] =  $this->user->companies()->get();
+        $user['companies'] =  $user->companies()->get();
+        $user['companies']->map(function ($company) {
+            $company['address'] = $company->address()->get();
+        });
         //Gerar o token de acesso
         $user->tokens()->delete();
         $token = $user->createToken('token')->plainTextToken;
@@ -84,9 +88,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function getUser(int $id){
-        $user = $this->user->newQuery()->find($id);
+    public function getUser(){
 
+        $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
@@ -101,9 +105,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function showCompanies(int $id)
+    public function showCompanies()
     {
-        $user = $this->user->newQuery()->find($id);
+        $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
@@ -119,7 +123,7 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-     public function update(UpdateClientRequest $request, int $id)
+     public function update(UpdateClientRequest $request)
     {
         $data = $request->validated();
         $credentials = [
@@ -134,7 +138,7 @@ class UserController extends Controller
             'state' => $data['state']
         ];
         isset($credentials['password']) ? $credentials['password'] = Hash::make($credentials['password']) : null;
-        $user = $this->user->newQuery()->find($id);
+        $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
 
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
@@ -157,9 +161,9 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(int $id)
+    public function destroy()
     {
-        $user = $this->user->newQuery()->find($id);
+        $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
