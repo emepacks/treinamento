@@ -30,6 +30,9 @@ class CompanyController extends Controller
         $companies->map(function ($company) {
             $company['address'] = $company->address()->get();
             $company['users'] = $company->user()->get();
+            $company['user']->map(function ($user) {
+                $user['address'] = $user->address()->get();
+            });
         });
         return response()->json($companies);
     }
