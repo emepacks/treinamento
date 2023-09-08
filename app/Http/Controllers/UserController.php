@@ -91,7 +91,10 @@ class UserController extends Controller
             ['user' => ['User not found'],]
         );
         $user['address'] = $user->address()->get();
-        $user['companies'] = $this->user->companies()->get();;
+        $user['companies'] = $user->companies()->get();
+        $user['companies']->map(function ($company) {
+            $company['address'] = $company->address()->get();
+        });
         return response()->json(['user'=>$user]);
     }
 
@@ -105,7 +108,7 @@ class UserController extends Controller
             ['user' => ['User not found'],]
         );
         $companies = $user->companies()->get();
-        $companies->each(function ($company) {
+        $companies->map(function ($company) {
             $company['address'] = $company->address()->get();
         });
         $data['user'] = $user['name'];
