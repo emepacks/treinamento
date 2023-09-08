@@ -43,10 +43,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
             // Deletar empresa
             Route::delete('/company/{id}', [CompanyController::class, 'destroy']);
             // Listar todos os clientes
-            Route::get('/company/clients/{id}', [UserController::class, 'showClients']);
+            Route::get('/company/clients/{id}', [CompanyController::class, 'showClients']);
             // Adicionar cliente a empresa
-            Route::post('/company/clients/{id}', [UserController::class, 'addClient']);
+            Route::post('/company/clients/{id}', [CompanyController::class, 'addClient']);
         }
-
     );
 });
