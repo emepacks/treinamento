@@ -39,10 +39,9 @@ class UserController extends Controller
         if(!$password) throw ValidationException::withMessages(
             ['password' => ['Password is incorrect'],]
         );
-        $address = $this->addresses->newQuery()->where('id', $user['address_id'])->first();
-        $companies = $this->user->companies()->get();
-        $user['address'] = $address;
-        $user['companies'] = $companies;
+
+        $user['address'] = $user->address()->first();
+        $user['companies'] =  $this->user->companies()->get();
         //Gerar o token de acesso
         $user->tokens()->delete();
         $token = $user->createToken('token')->plainTextToken;
@@ -91,9 +90,8 @@ class UserController extends Controller
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
-        $companies = $this->user->companies()->get();
         $user['address'] = $user->address()->get();
-        $user['companies'] = $companies;
+        $user['companies'] = $this->user->companies()->get();;
         return response()->json(['user'=>$user]);
     }
 
@@ -107,7 +105,6 @@ class UserController extends Controller
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
-        dd($this->user->companies());
         $companies = $this->user->companies->get();
         $data['user'] = $user['name'];
         $data['companies'] = $companies;
@@ -140,8 +137,9 @@ class UserController extends Controller
         );
 
         $user->address()->update($address);
-        // $this->address_controller->update($address,$user['address_id']);
         $user->update($credentials);
+
+        $user->refresh();
 
         $user['address'] = $user->address()->get();
         $user['companies'] = $this->user->companies()->get();
@@ -161,9 +159,8 @@ class UserController extends Controller
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
-        
+
         $user->address()->delete();
-        // $address = $this->address_controller->destroy($user['id']);
         $user->delete();
 
         return response()->json([
