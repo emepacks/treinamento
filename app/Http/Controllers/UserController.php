@@ -101,18 +101,23 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    // TODO: Terminar de implementar
+    // TODO: Precisa validar no Postman
     public function showCompanies(int $id)
     {
-        $user = $this->user->newQuery()->findOrFail($id);
-        dd($this->user->companies());
-        return response()->json(compact('user', 'companies'));
+        $user = $this->user->newQuery()->find($id);
+        if(!$user) throw ValidationException::withMessages(
+            ['user' => ['User not found'],]
+        );
+        $companies = $this->user->companies()->get();
+        $data['user'] = $user['name'];
+        $data['companies'] = $companies;
+        return response()->json(['data'=>$data]);
+
     }
 
     /**
      * Update the specified resource in storage.
      */
-      // TODO: Adicionar validação de dados
      public function update(UpdateClientRequest $request, int $id)
     {
         $data = $request->validated();
