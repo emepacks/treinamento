@@ -26,6 +26,6 @@ class Company extends Model
     }
 
     public function address(){
-        return $this->hasOne(Address::class, 'address_id', 'id');
+        return $this->belongsTo(Address::class);
     }
 }

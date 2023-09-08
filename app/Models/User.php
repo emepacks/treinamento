@@ -40,5 +40,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Company::class)->using(UserCompanies::class);
     }
 
-
+    public function address(){
+        return $this->belongsTo(Address::class);
+    }
 }

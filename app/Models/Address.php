@@ -21,10 +21,10 @@ class Address extends Model
     ];
 
     public function user(){
-        return $this->hasOne(User::class, 'address_id', 'id');
+        return $this->hasOne(User::class);
     }
     public function company(){
-        return $this->hasOne(Company::class, 'address_id', 'id');
+        return $this->hasOne(Company::class);
     }
 
 }
