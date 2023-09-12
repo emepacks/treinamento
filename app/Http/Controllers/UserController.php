@@ -10,8 +10,8 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -34,7 +34,7 @@ class UserController extends Controller
 
         $user = $this->user->newQuery()->where('email', $credentials['email'])->first();
         if(!$user) throw ValidationException::withMessages(
-            ['email' => ['Email is incorrect.'],]
+            ['email' => ['Email is incorrect.']]
         );
         $password = Hash::check($credentials['password'], $user->password);
         if(!$password) throw ValidationException::withMessages(
@@ -53,7 +53,6 @@ class UserController extends Controller
         return response()->json([
             'user'=>$user,
             'token'=>$token
-
         ]);
     }
 

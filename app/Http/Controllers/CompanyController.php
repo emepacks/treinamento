@@ -46,7 +46,7 @@ class CompanyController extends Controller
             'cnpj' => $data['cnpj'],
             'email' => $data['email'],
             'password' => $data['password'],
-            'name' => $data['name']
+            'razao' => $data['razao']
         ];
         $address = [
             'cep' => $data['cep'],
@@ -102,7 +102,7 @@ class CompanyController extends Controller
         $data = $request->validated();
         $credentials = [
             'password' => $data['password'],
-            'name' => $data['name']
+            'razao' => $data['razao']
         ];
         $address = [
             'cep' => $data['cep'],
