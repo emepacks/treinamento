@@ -9,9 +9,11 @@ use App\Models\Address;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
@@ -20,7 +22,8 @@ class UserController extends Controller
         private User $user,
         private AddressController $address_controller,
         private Company $companies,
-        private Address $addresses
+        private Address $addresses,
+        private Storage $disk
     )
     {
     }
@@ -67,8 +70,10 @@ class UserController extends Controller
             'cpf' => $data['cpf'],
             'email' => $data['email'],
             'password' => $data['password'],
-            'name' => $data['name']
+            'name' => $data['name'],
+            'photo_profile' => $data['image']
         ];
+
         $address = [
             'cep' => $data['cep'],
             'street' => $data['street'],
@@ -76,14 +81,20 @@ class UserController extends Controller
             'city' => $data['city'],
             'state' => $data['state']
         ];
+        if($data['image']){
+           $credentials['photo_profile'] = Storage::put('/public/profile', $credentials['photo_profile']);
+        }
+
         $credentials['password'] = Hash::make($credentials['password']);
         $addressStored = $this->address_controller->store($address);
         $credentials['address_id'] = $addressStored['id'];
         $user = $this->user->newQuery()->create($credentials);
         $token = $user->createToken('token')->plainTextToken;
+
         return response()->json([
             'message'=>'User created successfully',
-            'token'=>$token
+            'user'=>$user,
+            'token'=>$token,
         ]);
     }
 
@@ -127,7 +138,8 @@ class UserController extends Controller
         $data = $request->validated();
         $credentials = [
             'password' => $data['password'],
-            'name' => $data['name']
+            'name' => $data['name'],
+            'photo_profile' => $data['image']
         ];
         $address = [
             'cep' => $data['cep'],
@@ -136,12 +148,22 @@ class UserController extends Controller
             'city' => $data['city'],
             'state' => $data['state']
         ];
-        isset($credentials['password']) ? $credentials['password'] = Hash::make($credentials['password']) : null;
+
+        if($credentials['password']){
+            $credentials['password'] = Hash::make($credentials['password']);
+        }
+
         $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
 
         if(!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
+
+        if($data['image']){
+            $credentials['photo_profile'] = Storage::url($user->photo_profile);
+        }
+
+        dd($credentials['photo_profile']);
 
         $user->address()->update($address);
         $user->update($credentials);

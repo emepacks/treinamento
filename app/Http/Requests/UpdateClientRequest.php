@@ -29,6 +29,7 @@ class UpdateClientRequest extends FormRequest
             'neighborhood'=>'string|max:255',
             'city'=>'string|max:255',
             'state'=>'string|size:2',
+            'image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ];
     }
 }

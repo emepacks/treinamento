@@ -31,6 +31,7 @@ class StoreClientRequest extends FormRequest
             'neighborhood'=>'required|string|max:255',
             'city'=>'required|string|max:255',
             'state'=>'required|string|size:2',
+            'image'=>'image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ];
     }
 }
