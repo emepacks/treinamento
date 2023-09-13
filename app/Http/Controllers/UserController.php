@@ -7,12 +7,10 @@ use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Models\Address;
 use App\Models\Company;
-use Illuminate\Http\Request;
+use App\Notifications\UserNotification;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -24,8 +22,7 @@ class UserController extends Controller
         private Company $companies,
         private Address $addresses,
         private Storage $disk
-    )
-    {
+    ) {
     }
 
     /**
@@ -36,11 +33,11 @@ class UserController extends Controller
         $credentials = $request->validated();
 
         $user = $this->user->newQuery()->where('email', $credentials['email'])->first();
-        if(!$user) throw ValidationException::withMessages(
+        if (!$user) throw ValidationException::withMessages(
             ['email' => ['Email is incorrect.']]
         );
         $password = Hash::check($credentials['password'], $user->password);
-        if(!$password) throw ValidationException::withMessages(
+        if (!$password) throw ValidationException::withMessages(
             ['password' => ['Password is incorrect'],]
         );
 
@@ -54,8 +51,8 @@ class UserController extends Controller
         $token = $user->createToken('token')->plainTextToken;
 
         return response()->json([
-            'user'=>$user,
-            'token'=>$token
+            'user' => $user,
+            'token' => $token
         ]);
     }
 
@@ -65,43 +62,49 @@ class UserController extends Controller
     // TODO: Ideia: implementar uma função para formatar os dados para serem entregues ao cliente.
     public function signup(StoreClientRequest $request)
     {
-        $data = $request->validated();
-        $credentials = [
-            'cpf' => $data['cpf'],
-            'email' => $data['email'],
-            'password' => $data['password'],
-            'name' => $data['name'],
-            'photo_profile' => $data['image']
-        ];
 
-        $address = [
-            'cep' => $data['cep'],
-            'street' => $data['street'],
-            'neighborhood' => $data['neighborhood'],
-            'city' => $data['city'],
-            'state' => $data['state']
-        ];
-        if($data['image']){
-           $credentials['photo_profile'] = Storage::put('/public/profile', $credentials['photo_profile']);
-        }
+            $data = $request->validated();
 
-        $credentials['password'] = Hash::make($credentials['password']);
-        $addressStored = $this->address_controller->store($address);
-        $credentials['address_id'] = $addressStored['id'];
-        $user = $this->user->newQuery()->create($credentials);
-        $token = $user->createToken('token')->plainTextToken;
+            $credentials = [
+                'cpf' => $data['cpf'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'name' => $data['name'],
+                'photo_profile' => $request->file('photo_profile')
+            ];
+            $address = [
+                'cep' => $data['cep'],
+                'street' => $data['street'],
+                'neighborhood' => $data['neighborhood'],
+                'city' => $data['city'],
+                'state' => $data['state']
+            ];
+            if ($credentials['photo_profile']) {
+                $credentials['photo_profile'] = Storage::put('/public/profile', $credentials['photo_profile']);
+            }
 
-        return response()->json([
-            'message'=>'User created successfully',
-            'user'=>$user,
-            'token'=>$token,
-        ]);
+            $credentials['password'] = Hash::make($credentials['password']);
+            $addressStored = $this->address_controller->store($address);
+            $credentials['address_id'] = $addressStored['id'];
+            $user = $this->user->newQuery()->create($credentials);
+
+            $token = $user->createToken('token')->plainTextToken;
+
+            $user->notify(new UserNotification());
+            
+
+            return response()->json([
+                'message' => 'User created successfully',
+                'user' => $user,
+                'token' => $token,
+            ], );
     }
 
-    public function getUser(){
+    public function getUser()
+    {
 
         $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
-        if(!$user) throw ValidationException::withMessages(
+        if (!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
         $user['address'] = $user->address()->get();
@@ -109,7 +112,7 @@ class UserController extends Controller
         $user['companies']->map(function ($company) {
             $company['address'] = $company->address()->get();
         });
-        return response()->json(['user'=>$user]);
+        return response()->json(['user' => $user]);
     }
 
     /**
@@ -118,7 +121,7 @@ class UserController extends Controller
     public function showCompanies()
     {
         $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
-        if(!$user) throw ValidationException::withMessages(
+        if (!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
         $companies = $user->companies()->get();
@@ -127,13 +130,13 @@ class UserController extends Controller
         });
         $data['user'] = $user['name'];
         $data['companies'] = $companies;
-        return response()->json(['data'=>$data]);
+        return response()->json(['data' => $data]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-     public function update(UpdateClientRequest $request)
+    public function update(UpdateClientRequest $request)
     {
         $data = $request->validated();
         $credentials = [
@@ -149,17 +152,17 @@ class UserController extends Controller
             'state' => $data['state']
         ];
 
-        if($credentials['password']){
+        if ($credentials['password']) {
             $credentials['password'] = Hash::make($credentials['password']);
         }
 
         $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
 
-        if(!$user) throw ValidationException::withMessages(
+        if (!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
 
-        if($data['image']){
+        if ($data['image']) {
             $credentials['photo_profile'] = Storage::url($user->photo_profile);
         }
 
@@ -176,7 +179,6 @@ class UserController extends Controller
         return response()->json([
             'user' => $user
         ]);
-
     }
 
     /**
@@ -185,7 +187,7 @@ class UserController extends Controller
     public function destroy()
     {
         $user = $this->user->newQuery()->find(Auth::user()->getAuthIdentifier());
-        if(!$user) throw ValidationException::withMessages(
+        if (!$user) throw ValidationException::withMessages(
             ['user' => ['User not found'],]
         );
 
