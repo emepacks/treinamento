@@ -15,9 +15,8 @@ class UserNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-
-
      public function __construct(){}
+
     /**
      * Get the notification's delivery channels.
      *
@@ -35,7 +34,7 @@ class UserNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
                     ->subject('Bem vindo,'.$notifiable->name.'!')
-                    ->greeting('Ola ' . $notifiable->name)
+                    ->greeting('Olá' . $notifiable->name)
                     ->line('Seu cadastro foi realizado com sucesso!');
     }
 }

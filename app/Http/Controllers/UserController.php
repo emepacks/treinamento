@@ -91,7 +91,6 @@ class UserController extends Controller
             $token = $user->createToken('token')->plainTextToken;
 
             $user->notify(new UserNotification());
-            
 
             return response()->json([
                 'message' => 'User created successfully',
