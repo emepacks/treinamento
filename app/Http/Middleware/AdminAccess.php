@@ -18,7 +18,7 @@ class AdminAccess
 
         if(auth()->check() && (auth()->user()->type =='Cliente'))
         {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
         else
             return $next($request);
