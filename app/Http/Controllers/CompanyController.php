@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -33,7 +34,7 @@ class CompanyController extends Controller
                 $user['address'] = $user->address()->get();
             });
         });
-        return response()->json($companies);
+        return response()->json($companies, Response::HTTP_OK);
     }
 
     /**
@@ -63,7 +64,7 @@ class CompanyController extends Controller
         return response()->json([
             'message'=>'Company created successfully',
             'token' => $token
-        ]);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -74,9 +75,9 @@ class CompanyController extends Controller
         $company = $this->companies->newQuery()->find($id);
         $company['address'] = $company->address()->get();
         if (!$company) {
-            return response()->json(['message' => 'Company not found'], 404);
+            return response()->json(['message' => 'Company not found'], Response::HTTP_NOT_FOUND);
         }
-        return response()->json($company);
+        return response()->json($company, Response::HTTP_OK);
     }
 
     /**
@@ -86,11 +87,11 @@ class CompanyController extends Controller
     {
         $company = $this->companies->newQuery()->find($id);
         if (!$company) {
-            return response()->json(['message' => 'Company not found'], 404);
+            return response()->json(['message' => 'Company not found'],  Response::HTTP_NOT_FOUND);
         }
         $company['users'] = $company->user()->get();
         $company['address'] = $company->address()->get();
-        return response()->json($company);
+        return response()->json($company, Response::HTTP_OK);
     }
 
     /**
@@ -111,13 +112,14 @@ class CompanyController extends Controller
             'city' => $data['city'],
             'state' => $data['state']
         ];
-        isset($credentials['password']) ? $credentials['password'] = Hash::make($credentials['password']) : null;
         $company = $this->companies->newQuery()->find($id);
-
-        if(!$company) throw ValidationException::withMessages(
-            ['company' => ['Company not found'],]
-        );
-
+        if (!$company) return response()->json('Company not fund.', Response::HTTP_NOT_FOUND);
+        if ($credentials['password']) {
+            $credentials['password'] = Hash::make($credentials['password']);
+        }else{
+            $credentials['password'] = $company->password;
+        }
+        
         $company->address()->update($address);
         $company->update($credentials);
 
@@ -126,7 +128,7 @@ class CompanyController extends Controller
 
         return response()->json([
             'company' => $company
-        ]);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -136,11 +138,11 @@ class CompanyController extends Controller
     {
         $company = $this->companies->newQuery()->find($id);
         if (!$company) {
-            return response()->json(['message' => 'Company not found'], 404);
+            return response()->json(['message' => 'Company not found'],  Response::HTTP_NOT_FOUND);
         }
         $company->address()->delete();
         $company->delete();
-        return response()->json(['message' => 'Company deleted successfully']);
+        return response()->json(['message' => 'Company deleted successfully'], Response::HTTP_NO_CONTENT);
 
     }
     public function addClient (Request $request, int $id){
@@ -149,13 +151,13 @@ class CompanyController extends Controller
         ]);
         $company = $this->companies->newQuery()->find($id);
         if (!$company) {
-            return response()->json(['message' => 'Company not found'], 404);
+            return response()->json(['message' => 'Company not found'],  Response::HTTP_NOT_FOUND);
         }
         $user = $this->users->newQuery()->where('cpf', $data['cpf'])->first();
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'User not found'],  Response::HTTP_NOT_FOUND);
         }
         $company->user()->attach($user);
-        return response()->json(['message' => 'User added successfully']);
+        return response()->json(['message' => 'User added successfully'],Response::HTTP_OK);
     }
 }

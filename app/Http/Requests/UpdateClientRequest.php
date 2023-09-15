@@ -23,7 +23,7 @@ class UpdateClientRequest extends FormRequest
     {
         return [
             'name' => 'string|max:255|min:3',
-            'password' => 'string|max:255|min:6',
+            'password' => $this->password ? 'string|max:255|min:6' : '',
             'cep'=>'string|size:8',
             'street'=>'string|max:255',
             'neighborhood'=>'string|max:255',
