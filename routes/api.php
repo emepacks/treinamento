@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ReqResLoggersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -19,6 +20,10 @@ use App\Http\Controllers\UserController;
 Route::post('/login', [UserController::class, 'login']);
 // Cadastrar cliente
 Route::post('/signup', [UserController::class, 'signup']);
+// Request Route
+Route::get('/request', [ReqResLoggersController::class, 'request']);
+// Response Route
+Route::get('/response', [ReqResLoggersController::class, 'response']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     // Dados do cliente
